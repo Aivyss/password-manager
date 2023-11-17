@@ -2,7 +2,7 @@ package repository
 
 const (
 	createMasterUserTable = `
-		CREATE TABLE MASTER_USER (
+		CREATE TABLE IF NOT EXISTS MASTER_USER (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
 			USERNAME TEXT NOT NULL UNIQUE,
 			USER_PASSWORD TEXT NOT NULL
@@ -20,5 +20,31 @@ const (
 			MASTER_USER
 		WHERE 1=1
 			AND USERNAME = :userName
+	`
+)
+
+const (
+	createPasswordListTable = `
+		CREATE TABLE IF NOT EXISTS PASSWORD_LIST(
+			ID INTEGER PRIMARY KEY AUTOINCREMENT,
+			USER_PK INTEGER NOT NULL,
+			KEY_VALUE TEXT NOT NULL,
+			PASSWORD TEXT NOT NULL
+		)
+	`
+	InsertPassword = `
+		INSERT INTO PASSWORD_LIST (USER_PK, KEY_VALUE, PASSWORD) VALUES (:userPk, :key, :password)
+	`
+	GetPasswordByUserPkAndKey = `
+		SELECT
+			ID,
+			USER_PK,
+			KEY_VALUE,
+			PASSWORD
+		FROM
+			PASSWORD_LIST
+		WHERE 1=1
+			AND USER_PK = :userPk
+			AND KEY_VALUE = :key
 	`
 )

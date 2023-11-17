@@ -2,7 +2,7 @@ package command
 
 import (
 	"context"
-	"fmt"
+	"github.com/aivyss/password-manager/console"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
 	"github.com/aivyss/typex/util"
@@ -24,7 +24,7 @@ func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
 	name := c.String("name")
 	password := c.String("pw")
 
-	if util.IsBlank(name) || util.IsBlank(password) {
+	if util.IsBlank(name) || len(password) < 16 {
 		return pwmErr.InvalidOpt
 	}
 
@@ -44,7 +44,7 @@ func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
 func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
 	name := c.String("name")
 	password := c.String("pw")
-	if util.IsBlank(name) || util.IsBlank(password) {
+	if util.IsBlank(name) || len(password) < 16 {
 		return pwmErr.InvalidOpt
 	}
 
@@ -58,7 +58,14 @@ func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
 		return pwmErr.NoUser
 	}
 
-	fmt.Println("[pwm] logined!!")
+	mainConsole, err := console.NewMainConsole(user.Id, password)
+	if err != nil {
+		return err
+	}
+
+	if err = mainConsole.Run(); err != nil {
+		return err
+	}
 
 	return nil
 }

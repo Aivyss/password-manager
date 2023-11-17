@@ -19,13 +19,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	repository.InitDB(db)
+	if err := repository.InitDB(db); err != nil {
+		fmt.Println(err.Error())
+	}
 	factory, err := repository.NewRepositoryFactory(db)
 	if err != nil {
 		fmt.Println(pwmErr.FailToCreateRepository.Error())
 	}
 	masterUserCommandHandler := command.NewMasterUserCommandHandler(factory.MasterUserRepository)
 
+	// command mapping
 	app := cli.App{
 		Name: "pwm",
 		Commands: []*cli.Command{
@@ -34,7 +37,9 @@ func main() {
 		Description: "store your passwords safely",
 	}
 
-	if err := app.Run(os.Args); err != nil {
+	args := os.Args
+	fmt.Println(args)
+	if err := app.Run(args); err != nil {
 		fmt.Println(err.Error())
 	}
 }
