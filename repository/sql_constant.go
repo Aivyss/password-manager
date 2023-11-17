@@ -21,6 +21,16 @@ const (
 		WHERE 1=1
 			AND USERNAME = :userName
 	`
+	GetMasterUserById = `
+		SELECT
+			ID,
+			USERNAME,
+			USER_PASSWORD
+		FROM
+			MASTER_USER
+		WHERE 1=1
+			AND ID = :id
+	`
 )
 
 const (
@@ -46,5 +56,14 @@ const (
 		WHERE 1=1
 			AND USER_PK = :userPk
 			AND KEY_VALUE = :key
+	`
+	UpdatePasswordByUserPkAndKey = `
+		UPDATE
+			PASSWORD_LIST
+		SET
+			PASSWORD = :password
+		WHERE 1=1
+			AND USER_PK = :userPk
+			AND KEY_VALUE = :key 
 	`
 )

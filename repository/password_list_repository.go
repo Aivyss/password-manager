@@ -10,11 +10,13 @@ import (
 const (
 	InsertPasswordKey = iota
 	GetPasswordByUserPkAndKeyKey
+	UpdatePasswordByUserPkAndKeyKey
 )
 
 type PasswordListRepository interface {
 	Insert(ctx context.Context, userPk int, key string, password string) error
 	GetPasswordByUserPkAndKey(ctx context.Context, userPk int, key string) (*entity.PasswordList, error)
+	UpdatePasswordByUserPkAndKey(ctx context.Context, userPk int, key string, password string) error
 }
 
 type passwordListRepository struct {
@@ -47,8 +49,19 @@ func (p *passwordListRepository) GetPasswordByUserPkAndKey(ctx context.Context, 
 	return password, nil
 }
 
+func (p *passwordListRepository) UpdatePasswordByUserPkAndKey(ctx context.Context, userPk int, key string, password string) error {
+	if _, err := p.queryMap[UpdatePasswordByUserPkAndKeyKey].ExecContext(ctx, map[string]any{
+		"userPk":   userPk,
+		"key":      key,
+		"password": password,
+	}); err != nil {
+		return pwmErr.FailUpdatePw
+	}
+
+	return nil
+}
+
 func NewPasswordListRepository(db *sqlx.DB) (PasswordListRepository, error) {
-	queryMap := map[int]*sqlx.NamedStmt{}
 	insertPasswordQuery, err := db.PrepareNamed(InsertPassword)
 	if err != nil {
 		return nil, err
@@ -57,12 +70,17 @@ func NewPasswordListRepository(db *sqlx.DB) (PasswordListRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	queryMap[InsertPasswordKey] = insertPasswordQuery
-	queryMap[GetPasswordByUserPkAndKeyKey] = getPasswordByUserPkAndKeyQuery
+	updatePasswordByUserPkAndKeyQuery, err := db.PrepareNamed(UpdatePasswordByUserPkAndKey)
+	if err != nil {
+		return nil, err
+	}
 
 	return &passwordListRepository{
-		db:       db,
-		queryMap: queryMap,
+		db: db,
+		queryMap: map[int]*sqlx.NamedStmt{
+			InsertPasswordKey:               insertPasswordQuery,
+			GetPasswordByUserPkAndKeyKey:    getPasswordByUserPkAndKeyQuery,
+			UpdatePasswordByUserPkAndKeyKey: updatePasswordByUserPkAndKeyQuery,
+		},
 	}, nil
 }

@@ -10,11 +10,13 @@ import (
 const (
 	InsertMasterUserKey = iota
 	GetMasterUserByUserNameKey
+	GetMasterUserByIdKey
 )
 
 type MasterUserRepository interface {
 	Insert(ctx context.Context, userName string, userPassword string) error
 	GetUserByUserName(ctx context.Context, userName string) (*entity.MasterUser, error)
+	GetUserById(ctx context.Context, id int) (*entity.MasterUser, error)
 }
 
 type masterUserRepository struct {
@@ -31,14 +33,18 @@ func NewMasterUserRepository(db *sqlx.DB) (MasterUserRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	queryMap := map[int]*sqlx.NamedStmt{}
-	queryMap[InsertMasterUserKey] = insertQuery
-	queryMap[GetMasterUserByUserNameKey] = getByUserName
+	getUserById, err := db.PrepareNamed(GetMasterUserById)
+	if err != nil {
+		return nil, err
+	}
 
 	return &masterUserRepository{
-		db:       db,
-		queryMap: queryMap,
+		db: db,
+		queryMap: map[int]*sqlx.NamedStmt{
+			InsertMasterUserKey:        insertQuery,
+			GetMasterUserByUserNameKey: getByUserName,
+			GetMasterUserByIdKey:       getUserById,
+		},
 	}, nil
 }
 
@@ -64,4 +70,17 @@ func (r *masterUserRepository) GetUserByUserName(ctx context.Context, userName s
 	}
 
 	return result, nil
+}
+
+func (r *masterUserRepository) GetUserById(ctx context.Context, id int) (*entity.MasterUser, error) {
+	user := new(entity.MasterUser)
+	ctx = context.Background()
+
+	if err := r.queryMap[GetMasterUserByIdKey].GetContext(ctx, user, map[string]any{
+		"id": id,
+	}); err != nil {
+		return nil, pwmErr.NoUser
+	}
+
+	return user, nil
 }

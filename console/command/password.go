@@ -1,6 +1,7 @@
 package command
 
 import (
+	"bufio"
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
@@ -12,11 +13,14 @@ import (
 	"github.com/aivyss/password-manager/repository"
 	"github.com/aivyss/typex/util"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/crypto/bcrypt"
 	"io"
+	"os"
 )
 
 type PasswordCommandHandler struct {
 	passwordListRepository repository.PasswordListRepository
+	masterUserRepository   repository.MasterUserRepository
 	userPk                 int
 	cryptoKey              []byte
 }
@@ -68,6 +72,41 @@ func (h *PasswordCommandHandler) GetPassword(c *cli.Context) error {
 	return nil
 }
 
+func (h *PasswordCommandHandler) UpdatePassword(c *cli.Context) error {
+	key := c.String("k")
+	password := c.String("pw")
+
+	if util.IsBlank(key) || util.IsBlank(password) {
+		return pwmErr.InvalidOpt
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Print("[pwm][main console] please enter your master password again: ")
+	scanner.Scan()
+	plainMasterUserPassword := scanner.Text()
+
+	ctx := context.Background()
+	user, err := h.masterUserRepository.GetUserById(ctx, h.userPk)
+	if err != nil {
+		return err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(plainMasterUserPassword+user.UserName)); err != nil {
+		return pwmErr.NoUser
+	}
+
+	encryptedPw, err := h.encrypt(password)
+	if err != nil {
+		return err
+	}
+
+	if err = h.passwordListRepository.UpdatePasswordByUserPkAndKey(ctx, h.userPk, key, *encryptedPw); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h *PasswordCommandHandler) decrypt(encryptedPw string) (*string, error) {
 	block, err := aes.NewCipher(h.cryptoKey)
 	if err != nil {
@@ -116,6 +155,7 @@ func NewPasswordCommandHandler(userPk int, password string) (*PasswordCommandHan
 
 	return &PasswordCommandHandler{
 		passwordListRepository: repositoryFactory.PasswordListRepository,
+		masterUserRepository:   repositoryFactory.MasterUserRepository,
 		userPk:                 userPk,
 		cryptoKey:              []byte(password)[:16],
 	}, nil

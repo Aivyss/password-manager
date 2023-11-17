@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aivyss/password-manager/console/command"
+	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/pwmOs"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -48,6 +49,10 @@ func (m *MainConsole) Run() error {
 		}
 
 		if err := m.app.Run(inputArgs); err != nil {
+			if err == pwmErr.ExitErr {
+				return nil
+			}
+
 			return err
 		}
 	}
@@ -87,10 +92,31 @@ func NewMainConsole(userPk int, password string) (*MainConsole, error) {
 				Action: passwordCommandHandler.GetPassword,
 			},
 			{
+				Name:        "update",
+				Description: "update your password",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "k",
+						Usage: "${example: google}",
+					},
+					&cli.StringFlag{
+						Name:  "pw",
+						Usage: "${your_password}",
+					},
+				},
+				Action: passwordCommandHandler.UpdatePassword,
+			},
+			{
 				Name: "clear",
 				Action: func(context *cli.Context) error {
 					pwmOs.ClearTerminalBuffer()
 					return nil
+				},
+			},
+			{
+				Name: "exit",
+				Action: func(context *cli.Context) error {
+					return pwmErr.ExitErr
 				},
 			},
 		},
