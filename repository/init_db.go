@@ -59,12 +59,14 @@ func CheckAppVersion() error {
 			minor:  util.MustAtoi(currentAppVerStrs[2]),
 		}
 
-		if currentAppVer.AfterOrEqual(parseRegisteredVer) {
+		if currentAppVer.After(parseRegisteredVer) {
 			err := appVersionRepo.InsertAppVersion()
 			if err != nil {
 				return err
 			}
 
+			return nil
+		} else if currentAppVer.Equal(parseRegisteredVer) {
 			return nil
 		}
 
@@ -80,9 +82,16 @@ type appVersionDataBind struct {
 	minor  int
 }
 
-func (ver *appVersionDataBind) AfterOrEqual(v appVersionDataBind) bool {
+func (ver *appVersionDataBind) After(v appVersionDataBind) bool {
 	thisVersion := ver.main*constant.MainVersionUnit + ver.middle*constant.MiddleVersionUnit + ver.minor*constant.MinorVersionUnit
 	thatVersion := v.main*constant.MainVersionUnit + v.middle*constant.MiddleVersionUnit + v.minor*constant.MinorVersionUnit
 
-	return thisVersion >= thatVersion
+	return thisVersion > thatVersion
+}
+
+func (ver *appVersionDataBind) Equal(v appVersionDataBind) bool {
+	thisVersion := ver.main*constant.MainVersionUnit + ver.middle*constant.MiddleVersionUnit + ver.minor*constant.MinorVersionUnit
+	thatVersion := v.main*constant.MainVersionUnit + v.middle*constant.MiddleVersionUnit + v.minor*constant.MinorVersionUnit
+
+	return thisVersion == thatVersion
 }

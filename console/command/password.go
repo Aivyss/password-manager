@@ -4,11 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aivyss/password-manager/csv"
-	"github.com/aivyss/password-manager/pwmErr"
+	"github.com/aivyss/password-manager/options"
 	"github.com/aivyss/password-manager/pwmOs"
 	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/view"
-	"github.com/aivyss/typex/util"
 	"github.com/urfave/cli/v2"
 	"os"
 	"time"
@@ -21,14 +20,12 @@ type PasswordCommandHandler struct {
 func (h *PasswordCommandHandler) SetPassword(c *cli.Context) error {
 	defer pwmOs.ClearTerminalBuffer()
 
-	key := c.String("k")
-	password := c.String("pw")
-
-	if util.IsBlank(key) || util.IsBlank(password) {
-		return pwmErr.InvalidOpt
+	opts, err := options.NewMainSaveOptKOptPw(c)
+	if err != nil {
+		return err
 	}
 
-	if err := h.passwordService.SetPassword(key, password); err != nil {
+	if err := h.passwordService.SetPassword(opts.Key, opts.Password); err != nil {
 		return err
 	}
 
@@ -36,12 +33,12 @@ func (h *PasswordCommandHandler) SetPassword(c *cli.Context) error {
 }
 
 func (h *PasswordCommandHandler) GetPassword(c *cli.Context) error {
-	key := c.String("k")
-	if util.IsBlank(key) {
-		return pwmErr.InvalidOpt
+	opts, err := options.NewMainGetOptK(c)
+	if err != nil {
+		return err
 	}
 
-	password, err := h.passwordService.GetPassword(key)
+	password, err := h.passwordService.GetPassword(opts.Key)
 	if err != nil {
 		return err
 	}
@@ -52,11 +49,9 @@ func (h *PasswordCommandHandler) GetPassword(c *cli.Context) error {
 }
 
 func (h *PasswordCommandHandler) UpdatePassword(c *cli.Context) error {
-	key := c.String("k")
-	password := c.String("pw")
-
-	if util.IsBlank(key) || util.IsBlank(password) {
-		return pwmErr.InvalidOpt
+	opts, err := options.NewMainUpdateOptKOptPw(c)
+	if err != nil {
+		return err
 	}
 
 	scanner := bufio.NewScanner(os.Stdin)
@@ -64,7 +59,7 @@ func (h *PasswordCommandHandler) UpdatePassword(c *cli.Context) error {
 	scanner.Scan()
 	plainMasterUserPassword := scanner.Text()
 
-	return h.passwordService.UpdatePassword(key, plainMasterUserPassword, password)
+	return h.passwordService.UpdatePassword(opts.Key, opts.Password, plainMasterUserPassword)
 }
 
 func (h *PasswordCommandHandler) GetAllKeys(_ *cli.Context) error {

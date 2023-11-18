@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"github.com/aivyss/password-manager/console"
 	"github.com/aivyss/password-manager/csv"
-	"github.com/aivyss/password-manager/pwmErr"
+	"github.com/aivyss/password-manager/options"
 	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/view"
-	"github.com/aivyss/typex/util"
 	"github.com/urfave/cli/v2"
 	"time"
 )
@@ -23,29 +22,26 @@ func NewMasterUserCommandHandler(masterUserService service.MasterUserService) *M
 }
 
 func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
-	name := c.String("name")
-	password := c.String("pw")
-
-	if util.IsBlank(name) || len(password) < 16 {
-		return pwmErr.InvalidOpt
-	}
-
-	return h.masterUserService.CreateUser(name, password)
-}
-
-func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
-	name := c.String("name")
-	password := c.String("pw")
-	if util.IsBlank(name) || len(password) < 16 {
-		return pwmErr.InvalidOpt
-	}
-
-	user, err := h.masterUserService.Login(name, password)
+	opts, err := options.NewUserCreateOptNameOptPw(c)
 	if err != nil {
 		return err
 	}
 
-	mainConsole, err := console.NewMainConsole(user.Id, password)
+	return h.masterUserService.CreateUser(opts.Name, opts.Password)
+}
+
+func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
+	opts, err := options.NewUserLoginOptNameOptPw(c)
+	if err != nil {
+		return err
+	}
+
+	user, err := h.masterUserService.Login(opts.Name, opts.Password)
+	if err != nil {
+		return err
+	}
+
+	mainConsole, err := console.NewMainConsole(user.Id, opts.Password)
 	if err != nil {
 		return err
 	}
@@ -58,10 +54,12 @@ func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
 }
 
 func (h *MasterUserCommandHandler) GetUsers(c *cli.Context) error {
-	head := c.Int("head")
-	tail := c.Int("tail")
+	opts, err := options.NewUserListOptHeadOptTail(c)
+	if err != nil {
+		return err
+	}
 
-	users, err := h.masterUserService.GetUsers(head, tail)
+	users, err := h.masterUserService.GetUsers(opts.Head, opts.Tail)
 	if err != nil {
 		return err
 	}

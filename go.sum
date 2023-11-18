@@ -1,3 +1,5 @@
+github.com/aivyss/jsonx v1.0.4 h1:Pqz+byhXW2ehFV18oR8OBaBsz3y4oGGPv1bmKLiLcwM=
+github.com/aivyss/jsonx v1.0.4/go.mod h1:0r4Nxpo/Mq92wOLtOzMOmXH/QiIpb0AgVJjdFhXLZao=
 github.com/aivyss/typex v1.0.4 h1:gH6mPoXeMMUaPIEq2qfZH6QAEDjrkInVFGg3c/beegE=
 github.com/aivyss/typex v1.0.4/go.mod h1:8luE6hnCtP7B92b9tFGPZ4pfjdG6BgEvocwvM0FTkBk=
 github.com/cpuguy83/go-md2man/v2 v2.0.2 h1:p1EgwI/C7NhT0JmVkwCD2ZBK8j4aeHQX2pMHHBfMQ6w=

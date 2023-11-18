@@ -3,6 +3,7 @@ module github.com/aivyss/password-manager
 go 1.20
 
 require (
+	github.com/aivyss/jsonx v1.0.4 // indirect
 	github.com/aivyss/typex v1.0.4 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
