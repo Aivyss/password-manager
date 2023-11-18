@@ -92,6 +92,11 @@ func NewMainConsole(userPk int, password string) (*MainConsole, error) {
 				Action: passwordCommandHandler.GetPassword,
 			},
 			{
+				Name:    "list",
+				Aliases: []string{"l"},
+				Action:  passwordCommandHandler.GetAllKeys,
+			},
+			{
 				Name:        "update",
 				Description: "update your password",
 				Flags: []cli.Flag{

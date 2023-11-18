@@ -8,14 +8,17 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"github.com/aivyss/password-manager/csv"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/pwmOs"
 	"github.com/aivyss/password-manager/repository"
+	"github.com/aivyss/password-manager/view"
 	"github.com/aivyss/typex/util"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 	"os"
+	"time"
 )
 
 type PasswordCommandHandler struct {
@@ -103,6 +106,39 @@ func (h *PasswordCommandHandler) UpdatePassword(c *cli.Context) error {
 	if err = h.passwordListRepository.UpdatePasswordByUserPkAndKey(ctx, h.userPk, key, *encryptedPw); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (h *PasswordCommandHandler) GetAllKeys(_ *cli.Context) error {
+	ctx := context.Background()
+	passwords, err := h.passwordListRepository.GetAllPasswords(ctx, h.userPk)
+	if err != nil {
+		return err
+	}
+
+	type passwordListCsvBindObject struct {
+		Key       string    `csv:"Key"`
+		CreatedAt time.Time `csv:"Created Date"`
+		UpdatedAt time.Time `csv:"Last Updated Date"`
+	}
+
+	objects := make([]passwordListCsvBindObject, 0, len(passwords))
+	for _, password := range passwords {
+		objects = append(objects, passwordListCsvBindObject{
+			Key:       password.Key,
+			CreatedAt: password.CreatedAt,
+			UpdatedAt: password.UpdatedAt,
+		})
+	}
+
+	if len(objects) > 0 {
+		csvLines := csv.CreateCsvLines(objects)
+		view.StdoutTableView(csvLines[0], csvLines[1:])
+		return nil
+	}
+
+	fmt.Println("[pwm][main console] there is no record")
 
 	return nil
 }

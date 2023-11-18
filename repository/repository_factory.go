@@ -26,7 +26,7 @@ func NewRepositoryFactory(db *sqlx.DB) (*RepositoryFactory, error) {
 		}
 
 		passwordListRepo, e := NewPasswordListRepository(db)
-		if err != nil {
+		if e != nil {
 			err = e
 			return
 		}
