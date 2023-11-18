@@ -10,6 +10,7 @@ var factoryOnce sync.Once
 var repositoryFactory *RepositoryFactory
 
 type RepositoryFactory struct {
+	AppVersionRepository   AppVersionRepository
 	MasterUserRepository   MasterUserRepository
 	PasswordListRepository PasswordListRepository
 }
@@ -19,6 +20,12 @@ func NewRepositoryFactory(db *sqlx.DB) (*RepositoryFactory, error) {
 	var err error
 
 	factoryOnce.Do(func() {
+		appVersionRepo, e := NewAppVersionRepository(db)
+		if e != nil {
+			err = e
+			return
+		}
+
 		masterUserRepo, e := NewMasterUserRepository(db)
 		if e != nil {
 			err = e
@@ -32,6 +39,7 @@ func NewRepositoryFactory(db *sqlx.DB) (*RepositoryFactory, error) {
 		}
 
 		factory = &RepositoryFactory{
+			AppVersionRepository:   appVersionRepo,
 			MasterUserRepository:   masterUserRepo,
 			PasswordListRepository: passwordListRepo,
 		}

@@ -1,6 +1,35 @@
 package repository
 
 const (
+	createAppVersionTable = `
+		CREATE TABLE IF NOT EXISTS APP_VERSION (
+			VERSION TEXT PRIMARY KEY,
+			CREATED_AT TIMESTAMP NOT NULL DEFAULT(datetime(CURRENT_TIMESTAMP, 'localtime'))
+		)
+	`
+	InsertAppVersion = `
+		INSERT INTO APP_VERSION (VERSION) VALUES (:version)
+	`
+	GetLatestAppVersion = `
+		SELECT
+			VERSION
+		FROM (
+			SELECT
+				VERSION
+			FROM
+				APP_VERSION
+			ORDER BY CREATED_AT DESC
+		) LIMIT 1
+	`
+	CountVersions = `
+		SELECT
+			COUNT(*) AS COUNT
+		FROM
+			APP_VERSION
+	`
+)
+
+const (
 	createMasterUserTable = `
 		CREATE TABLE IF NOT EXISTS MASTER_USER (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,

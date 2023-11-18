@@ -26,13 +26,20 @@ func main() {
 	if err != nil {
 		fmt.Println(pwmErr.FailToCreateRepository.Error())
 	}
-	masterUserCommandHandler := command.NewMasterUserCommandHandler(factory.MasterUserRepository)
 
-	// command mapping
+	// App Version
+	repository.CheckAppVersion()
+
+	// Create Handlers
+	masterUserCommandHandler := command.NewMasterUserCommandHandler(factory.MasterUserRepository)
+	appVersionCommandHandler := command.NewAppVersionCommandHandler(factory.AppVersionRepository)
+
+	// Command Mapping
 	app := cli.App{
 		Name: "pwm",
 		Commands: []*cli.Command{
 			masterUserCommandHandler.Command(),
+			appVersionCommandHandler.Command(),
 		},
 		Description: "store your passwords safely",
 	}
