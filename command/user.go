@@ -1,28 +1,24 @@
 package command
 
 import (
-	"context"
 	"fmt"
 	"github.com/aivyss/password-manager/console"
 	"github.com/aivyss/password-manager/csv"
-	"github.com/aivyss/password-manager/entity"
 	"github.com/aivyss/password-manager/pwmErr"
-	"github.com/aivyss/password-manager/repository"
+	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/view"
 	"github.com/aivyss/typex/util"
 	"github.com/urfave/cli/v2"
-	"golang.org/x/crypto/bcrypt"
-	"sort"
 	"time"
 )
 
 type MasterUserCommandHandler struct {
-	masterUserRepository repository.MasterUserRepository
+	masterUserService service.MasterUserService
 }
 
-func NewMasterUserCommandHandler(masterUserRepository repository.MasterUserRepository) *MasterUserCommandHandler {
+func NewMasterUserCommandHandler(masterUserService service.MasterUserService) *MasterUserCommandHandler {
 	return &MasterUserCommandHandler{
-		masterUserRepository: masterUserRepository,
+		masterUserService: masterUserService,
 	}
 }
 
@@ -34,17 +30,7 @@ func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
 		return pwmErr.InvalidOpt
 	}
 
-	hashedPw, err := bcrypt.GenerateFromPassword([]byte(password+name), 15)
-	if err != nil {
-		return pwmErr.GeneratePw
-	}
-
-	ctx := context.Background()
-	if err := h.masterUserRepository.Insert(ctx, name, string(hashedPw)); err != nil {
-		return err
-	}
-
-	return nil
+	return h.masterUserService.CreateUser(name, password)
 }
 
 func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
@@ -54,14 +40,9 @@ func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
 		return pwmErr.InvalidOpt
 	}
 
-	ctx := context.Background()
-	user, err := h.masterUserRepository.GetUserByUserName(ctx, name)
+	user, err := h.masterUserService.Login(name, password)
 	if err != nil {
 		return err
-	}
-
-	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password+name)); err != nil {
-		return pwmErr.NoUser
 	}
 
 	mainConsole, err := console.NewMainConsole(user.Id, password)
@@ -80,29 +61,9 @@ func (h *MasterUserCommandHandler) GetUsers(c *cli.Context) error {
 	head := c.Int("head")
 	tail := c.Int("tail")
 
-	ctx := context.Background()
-	users, err := h.masterUserRepository.GetAllUsers(ctx)
+	users, err := h.masterUserService.GetUsers(head, tail)
 	if err != nil {
 		return err
-	}
-
-	sort.Slice(users, func(i, j int) bool {
-		return users[i].Id < users[j].Id
-	})
-
-	var result []entity.MasterUser
-	if head > 0 {
-		result = users[:]
-		if len(users) > 10 {
-			result = users[:head]
-		}
-	} else if tail > 0 {
-		result = users[len(users)-tail:]
-	} else {
-		result = users[:]
-		if len(users) > 10 {
-			result = users[:10]
-		}
 	}
 
 	type userCsvBindObject struct {
@@ -110,8 +71,8 @@ func (h *MasterUserCommandHandler) GetUsers(c *cli.Context) error {
 		CreatedAt time.Time `csv:"Created Date"`
 		UpdatedAt time.Time `csv:"Last Updated Date"`
 	}
-	objects := make([]userCsvBindObject, 0, len(result))
-	for _, user := range result {
+	objects := make([]userCsvBindObject, 0, len(users))
+	for _, user := range users {
 		objects = append(objects, userCsvBindObject{
 			UserName:  user.UserName,
 			CreatedAt: user.CreatedAt,

@@ -5,6 +5,7 @@ import (
 	"github.com/aivyss/password-manager/command"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
+	"github.com/aivyss/password-manager/service"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/urfave/cli/v2"
@@ -28,10 +29,12 @@ func main() {
 	}
 
 	// App Version
-	repository.CheckAppVersion()
+	if err = repository.CheckAppVersion(); err != nil {
+		fmt.Println(err.Error())
+	}
 
 	// Create Handlers
-	masterUserCommandHandler := command.NewMasterUserCommandHandler(factory.MasterUserRepository)
+	masterUserCommandHandler := command.NewMasterUserCommandHandler(service.NewMasterUserService(factory.MasterUserRepository))
 	appVersionCommandHandler := command.NewAppVersionCommandHandler(factory.AppVersionRepository)
 
 	// Command Mapping
