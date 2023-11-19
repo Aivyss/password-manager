@@ -137,3 +137,16 @@ const (
 			AND KEY_VALUE = :key 
 	`
 )
+
+const (
+	createPasswordListDetailTable = `
+		CREATE TABLE IF NOT EXISTS PASSWORD_LIST_DETAIL (
+			ID INTEGER PRIMARY KEY AUTOINCREMENT,
+			PASSWORD_LIST_KEY INTEGER NOT NULL,
+			DESCRIPTION TEXT NOT NULL
+		)
+	`
+	InsertDetailByPasswordListKey = `
+		INSERT INTO PASSWORD_LIST_DETAIL (PASSWORD_LIST_KEY, DESCRIPTION) VALUES (:passwordListKey, :description)
+	`
+)

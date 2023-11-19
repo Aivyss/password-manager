@@ -71,12 +71,15 @@ func NewMainConsole(userPk int, password string) (*MainConsole, error) {
 				Name: "save",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
-						Name:  "k",
-						Usage: "${example: google}",
+						Name:     "k",
+						Usage:    "${example: google}",
+						Required: true,
 					},
 					&cli.StringFlag{
-						Name:  "pw",
-						Usage: "${your_password}",
+						Name:     "description",
+						Aliases:  []string{"d"},
+						Usage:    "site https://www.google.com",
+						Required: false,
 					},
 				},
 				Action: passwordCommandHandler.SetPassword,

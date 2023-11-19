@@ -37,7 +37,7 @@ func (h *PasswordCommandHandler) SetPassword(c *cli.Context) error {
 		return pwmErr.AlreadyExistKey
 	}
 
-	if err := h.passwordService.SetPassword(opts.Key, opts.Password); err != nil {
+	if err := h.passwordService.SetPassword(opts.Key, opts.Password, opts.Description); err != nil {
 		return err
 	}
 
@@ -55,7 +55,7 @@ func (h *PasswordCommandHandler) GetPassword(c *cli.Context) error {
 		return err
 	}
 
-	clipboard.WriteAll(*password)
+	_ = clipboard.WriteAll(*password)
 
 	fmt.Println("[pwm][main console] your password is written in clipboard.")
 	return nil

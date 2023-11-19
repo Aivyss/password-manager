@@ -15,17 +15,19 @@ import (
 )
 
 type PasswordService interface {
-	SetPassword(key, plainPw string) error
+	SetPassword(key, plainPw, description string) error
 	GetPassword(key string) (*string, error)
 	UpdatePassword(key, plainPwForPersist, plainUserPw string) error
 	GetAllPasswords() ([]entity.PasswordList, error)
 }
 
 type passwordListService struct {
-	masterUserRepository   repository.MasterUserRepository
-	passwordListRepository repository.PasswordListRepository
-	userPk                 int
-	cryptoKey              []byte
+	masterUserRepository         repository.MasterUserRepository
+	passwordListRepository       repository.PasswordListRepository
+	passwordListDetailRepository repository.PasswordListDetailRepository
+	txManager                    repository.TxManager
+	userPk                       int
+	cryptoKey                    []byte
 }
 
 func (s *passwordListService) GetAllPasswords() ([]entity.PasswordList, error) {
@@ -62,7 +64,7 @@ func (s *passwordListService) GetPassword(key string) (*string, error) {
 	return s.decrypt(passwordEntity.Password)
 }
 
-func (s *passwordListService) SetPassword(key string, plainPw string) error {
+func (s *passwordListService) SetPassword(key, plainPw, description string) error {
 	// encrypt password
 	encrypt, err := s.encrypt(plainPw)
 	if err != nil {
@@ -71,7 +73,22 @@ func (s *passwordListService) SetPassword(key string, plainPw string) error {
 
 	// persist password
 	ctx := context.Background()
-	return s.passwordListRepository.Insert(ctx, s.userPk, key, *encrypt)
+	return s.txManager.Txx(ctx, func(ctx context.Context) error {
+		if err := s.passwordListRepository.Insert(ctx, s.userPk, key, *encrypt); err != nil {
+			return err
+		}
+
+		e, err := s.passwordListRepository.GetPasswordByUserPkAndKey(ctx, s.userPk, key)
+		if err != nil {
+			return err
+		}
+
+		if err := s.passwordListDetailRepository.Insert(ctx, e.Id, description); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *passwordListService) decrypt(encryptedPw string) (*string, error) {
@@ -121,9 +138,11 @@ func NewPasswordService(userPk int, cryptoKey []byte) (PasswordService, error) {
 	}
 
 	return &passwordListService{
-		masterUserRepository:   repositoryFactory.MasterUserRepository,
-		passwordListRepository: repositoryFactory.PasswordListRepository,
-		userPk:                 userPk,
-		cryptoKey:              cryptoKey,
+		masterUserRepository:         repositoryFactory.MasterUserRepository,
+		passwordListRepository:       repositoryFactory.PasswordListRepository,
+		passwordListDetailRepository: repositoryFactory.PasswordListDetailRepository,
+		txManager:                    repositoryFactory.TxManager,
+		userPk:                       userPk,
+		cryptoKey:                    cryptoKey,
 	}, nil
 }

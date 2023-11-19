@@ -7,13 +7,15 @@ import (
 )
 
 type mainSaveOptKOptPw struct {
-	Key string `json:"k" annotation:"@NotBlank"`
+	Key         string `json:"k" annotation:"@NotBlank"`
+	Description string `json:"description"`
 }
 
 func (o *mainSaveOptKOptPw) ToEntity(password string) (*MainSaveOptKOptPw, error) {
 	opts := MainSaveOptKOptPw{
-		Key:      o.Key,
-		Password: password,
+		Key:         o.Key,
+		Password:    password,
+		Description: o.Description,
 	}
 
 	if err := jsonx.Validate(opts); err != nil {
@@ -24,14 +26,19 @@ func (o *mainSaveOptKOptPw) ToEntity(password string) (*MainSaveOptKOptPw, error
 }
 
 type MainSaveOptKOptPw struct {
-	Key      string `json:"k" annotation:"@NotBlank"`
-	Password string `json:"pw" annotation:"@NotBlank"`
+	Key         string `json:"k" annotation:"@NotBlank"`
+	Password    string `json:"pw" annotation:"@NotBlank"`
+	Description string `json:"description"`
 }
 
 func NewmainSaveOptKOptPw(c *cli.Context) (*mainSaveOptKOptPw, error) {
 	return parser.ParseOpts[mainSaveOptKOptPw](c, []parser.OptKeyValue{
 		{
 			Key:     "k",
+			OptType: parser.STRING,
+		},
+		{
+			Key:     "description",
 			OptType: parser.STRING,
 		},
 	})

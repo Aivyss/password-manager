@@ -24,6 +24,11 @@ func InitDB(db *sqlx.DB) error {
 		return pwmErr.DBInit
 	}
 
+	_, err = db.Exec(createPasswordListDetailTable)
+	if err != nil {
+		return pwmErr.DBInit
+	}
+
 	return nil
 }
 

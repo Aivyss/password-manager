@@ -27,7 +27,7 @@ type passwordListRepository struct {
 }
 
 func (p *passwordListRepository) Insert(ctx context.Context, userPk int, key string, password string) error {
-	if _, err := p.queryMap[InsertPasswordKey].ExecContext(ctx, map[string]any{
+	if _, err := GetStatement(ctx, p.queryMap[InsertPasswordKey]).ExecContext(ctx, map[string]any{
 		"userPk":   userPk,
 		"key":      key,
 		"password": password,
