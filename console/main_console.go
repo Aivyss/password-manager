@@ -53,7 +53,7 @@ func (m *MainConsole) Run() error {
 				return nil
 			}
 
-			return err
+			fmt.Printf("[pwm][main console][error]%s\n", err.Error())
 		}
 	}
 }
