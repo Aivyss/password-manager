@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aivyss/password-manager/csv"
 	"github.com/aivyss/password-manager/options"
+	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/view"
 	"github.com/atotto/clipboard"
@@ -30,6 +31,10 @@ func (h *PasswordCommandHandler) SetPassword(c *cli.Context) error {
 	opts, err := object.ToEntity(string(password))
 	if err != nil {
 		return err
+	}
+
+	if entity, _ := h.passwordService.GetPassword(opts.Key); entity != nil {
+		return pwmErr.AlreadyExistKey
 	}
 
 	if err := h.passwordService.SetPassword(opts.Key, opts.Password); err != nil {
