@@ -6,12 +6,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-type userCreateOptNameOptPw struct {
+type userDropOptNameOptPw struct {
 	Name string `json:"name" annotation:"@NotBlank"`
 }
 
-func (o *userCreateOptNameOptPw) ToEntity(password string) (*UserCreateOptNameOptPw, error) {
-	opts := UserCreateOptNameOptPw{
+func (o *userDropOptNameOptPw) ToEntity(password string) (*UserDropOptNameOptPw, error) {
+	opts := UserDropOptNameOptPw{
 		Name:     o.Name,
 		Password: password,
 	}
@@ -23,13 +23,13 @@ func (o *userCreateOptNameOptPw) ToEntity(password string) (*UserCreateOptNameOp
 	return &opts, nil
 }
 
-type UserCreateOptNameOptPw struct {
+type UserDropOptNameOptPw struct {
 	Name     string `json:"name" annotation:"@NotBlank"`
 	Password string `json:"pw" annotation:"@NotBlank"`
 }
 
-func NewuserCreateOptNameOptPw(c *cli.Context) (*userCreateOptNameOptPw, error) {
-	return parser.ParseOpts[userCreateOptNameOptPw](c, []parser.OptKeyValue{
+func NewuserDropOptName(c *cli.Context) (*userDropOptNameOptPw, error) {
+	return parser.ParseOpts[userDropOptNameOptPw](c, []parser.OptKeyValue{
 		{
 			Key:     "name",
 			OptType: parser.STRING,

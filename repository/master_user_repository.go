@@ -12,6 +12,7 @@ const (
 	GetMasterUserByUserNameKey
 	GetMasterUserByIdKey
 	GetAllUsersKey
+	DropUserByIdKey
 )
 
 type MasterUserRepository interface {
@@ -19,6 +20,7 @@ type MasterUserRepository interface {
 	GetUserByUserName(ctx context.Context, userName string) (*entity.MasterUser, error)
 	GetUserById(ctx context.Context, id int) (*entity.MasterUser, error)
 	GetAllUsers(ctx context.Context) ([]entity.MasterUser, error)
+	DropUserById(ctx context.Context, id int) error
 }
 
 type masterUserRepository struct {
@@ -43,6 +45,10 @@ func NewMasterUserRepository(db *sqlx.DB) (MasterUserRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+	dropUserById, err := db.PrepareNamed(DropUserById)
+	if err != nil {
+		return nil, err
+	}
 
 	return &masterUserRepository{
 		db: db,
@@ -51,6 +57,7 @@ func NewMasterUserRepository(db *sqlx.DB) (MasterUserRepository, error) {
 			GetMasterUserByUserNameKey: getByUserName,
 			GetMasterUserByIdKey:       getUserById,
 			GetAllUsersKey:             getAllUsers,
+			DropUserByIdKey:            dropUserById,
 		},
 	}, nil
 }
@@ -99,4 +106,14 @@ func (r *masterUserRepository) GetAllUsers(ctx context.Context) ([]entity.Master
 	}
 
 	return users, nil
+}
+
+func (r *masterUserRepository) DropUserById(ctx context.Context, id int) error {
+	if _, err := r.queryMap[DropUserByIdKey].ExecContext(ctx, map[string]any{
+		"id": id,
+	}); err != nil {
+		return pwmErr.Unknown
+	}
+
+	return nil
 }

@@ -77,6 +77,11 @@ const (
 			MASTER_USER
 		WHERE 1=1
 	`
+	DropUserById = `
+		DELETE FROM MASTER_USER
+		WHERE 1=1
+			AND ID = :id
+	`
 )
 
 const (

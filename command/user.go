@@ -8,6 +8,8 @@ import (
 	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/view"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/crypto/ssh/terminal"
+	"os"
 	"time"
 )
 
@@ -22,7 +24,16 @@ func NewMasterUserCommandHandler(masterUserService service.MasterUserService) *M
 }
 
 func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
-	opts, err := options.NewUserCreateOptNameOptPw(c)
+	fmt.Print("[pwm] enter user password: ")
+	password, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+
+	object, err := options.NewuserCreateOptNameOptPw(c)
+	if err != nil {
+		return err
+	}
+
+	opts, err := object.ToEntity(string(password))
 	if err != nil {
 		return err
 	}
@@ -31,7 +42,15 @@ func (h *MasterUserCommandHandler) CreateUser(c *cli.Context) error {
 }
 
 func (h *MasterUserCommandHandler) Login(c *cli.Context) error {
-	opts, err := options.NewUserLoginOptNameOptPw(c)
+	fmt.Print("[pwm] enter user password: ")
+	password, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+	object, err := options.NewuserLoginOptNameOptPw(c)
+	if err != nil {
+		return err
+	}
+
+	opts, err := object.ToEntity(string(password))
 	if err != nil {
 		return err
 	}
@@ -88,6 +107,24 @@ func (h *MasterUserCommandHandler) GetUsers(c *cli.Context) error {
 	return nil
 }
 
+func (h *MasterUserCommandHandler) DropUser(c *cli.Context) error {
+	fmt.Print("[pwm] enter user password: ")
+	password, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+
+	object, err := options.NewuserDropOptName(c)
+	if err != nil {
+		return err
+	}
+
+	opts, err := object.ToEntity(string(password))
+	if err != nil {
+		return err
+	}
+
+	return h.masterUserService.DropUser(opts.Name, string(password))
+}
+
 func (h *MasterUserCommandHandler) Command() *cli.Command {
 	return &cli.Command{
 		Name:        "user",
@@ -103,12 +140,6 @@ func (h *MasterUserCommandHandler) Command() *cli.Command {
 						Usage:    "set user name",
 						Required: true,
 					},
-					&cli.StringFlag{
-						Name:     "pw",
-						Value:    "${user_password}",
-						Usage:    "set user password",
-						Required: true,
-					},
 				},
 				Action: h.CreateUser,
 			},
@@ -120,12 +151,6 @@ func (h *MasterUserCommandHandler) Command() *cli.Command {
 						Name:     "name",
 						Value:    "${user_name}",
 						Usage:    "set user name",
-						Required: true,
-					},
-					&cli.StringFlag{
-						Name:     "pw",
-						Value:    "${user_password}",
-						Usage:    "set user password",
 						Required: true,
 					},
 				},
@@ -153,6 +178,17 @@ func (h *MasterUserCommandHandler) Command() *cli.Command {
 					},
 				},
 				Action: h.GetUsers,
+			},
+			{
+				Name:        "drop",
+				Description: "drop a user",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "name",
+						Usage: "user name",
+					},
+				},
+				Action: h.DropUser,
 			},
 		},
 	}

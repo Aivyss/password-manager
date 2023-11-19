@@ -104,10 +104,6 @@ func NewMainConsole(userPk int, password string) (*MainConsole, error) {
 						Name:  "k",
 						Usage: "${example: google}",
 					},
-					&cli.StringFlag{
-						Name:  "pw",
-						Usage: "${your_password}",
-					},
 				},
 				Action: passwordCommandHandler.UpdatePassword,
 			},

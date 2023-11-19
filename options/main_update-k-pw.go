@@ -1,23 +1,37 @@
 package options
 
 import (
+	"github.com/aivyss/jsonx"
 	"github.com/aivyss/password-manager/options/parser"
 	"github.com/urfave/cli/v2"
 )
 
-type MainUpdateOptKOptPw struct {
-	Key      string `json:"k" annotation:"@NotBlank"`
-	Password string `json:"pw" annotation:"@NotBlank"`
+type mainUpdateOptKOptPw struct {
+	Key string `json:"k" annotation:"@NotBlank"`
 }
 
-func NewMainUpdateOptKOptPw(c *cli.Context) (*MainUpdateOptKOptPw, error) {
-	return parser.ParseOpts[MainUpdateOptKOptPw](c, []parser.OptKeyValue{
+func (o *mainUpdateOptKOptPw) ToEntity(password string) (*MainUpdateOptKOptPw, error) {
+	opts := MainUpdateOptKOptPw{
+		Key:      o.Key,
+		Password: password,
+	}
+
+	if err := jsonx.Validate(opts); err != nil {
+		return nil, err
+	}
+
+	return &opts, nil
+}
+
+type MainUpdateOptKOptPw struct {
+	Key      string `json:"k" annotation:"@NotBlank"`
+	Password string `json:"pw"`
+}
+
+func NewmainUpdateOptKOptPw(c *cli.Context) (*mainUpdateOptKOptPw, error) {
+	return parser.ParseOpts[mainUpdateOptKOptPw](c, []parser.OptKeyValue{
 		{
 			Key:     "k",
-			OptType: parser.STRING,
-		},
-		{
-			Key:     "pw",
 			OptType: parser.STRING,
 		},
 	})

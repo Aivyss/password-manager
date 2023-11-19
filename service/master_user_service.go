@@ -13,10 +13,25 @@ type MasterUserService interface {
 	CreateUser(name, password string) error
 	Login(name, password string) (*entity.MasterUser, error)
 	GetUsers(head, tail int) ([]entity.MasterUser, error)
+	DropUser(username string, password string) error
 }
 
 type masterUserService struct {
 	masterUserRepository repository.MasterUserRepository
+}
+
+func (s *masterUserService) DropUser(username string, password string) error {
+	ctx := context.Background()
+	user, err := s.masterUserRepository.GetUserByUserName(ctx, username)
+	if err != nil {
+		return err
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password+user.UserName)); err != nil {
+		return pwmErr.WrongPw
+	}
+
+	return s.masterUserRepository.DropUserById(ctx, user.Id)
 }
 
 func (s *masterUserService) GetUsers(head, tail int) ([]entity.MasterUser, error) {
