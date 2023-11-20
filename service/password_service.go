@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"github.com/aivyss/password-manager/entity"
+	"github.com/aivyss/password-manager/pwmContext"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
 	"github.com/aivyss/typex/util"
@@ -92,7 +93,10 @@ func (s *passwordListService) SetPassword(key, plainPw, description string) erro
 }
 
 func (s *passwordListService) decrypt(encryptedPw string) (*string, error) {
-	block, err := aes.NewCipher(s.cryptoKey)
+	cryptoKey := make([]byte, 0, 32)
+	cryptoKey = append(cryptoKey, s.cryptoKey...)
+	cryptoKey = append(cryptoKey, []byte(pwmContext.GetGlobalContext().BuildSecretKey)[:16]...)
+	block, err := aes.NewCipher(cryptoKey)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +117,10 @@ func (s *passwordListService) decrypt(encryptedPw string) (*string, error) {
 }
 
 func (s *passwordListService) encrypt(password string) (*string, error) {
-	block, err := aes.NewCipher(s.cryptoKey)
+	cryptoKey := make([]byte, 0, 32)
+	cryptoKey = append(cryptoKey, s.cryptoKey...)
+	cryptoKey = append(cryptoKey, []byte(pwmContext.GetGlobalContext().BuildSecretKey)[:16]...)
+	block, err := aes.NewCipher(cryptoKey)
 	if err != nil {
 		return nil, err
 	}

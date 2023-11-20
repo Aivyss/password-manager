@@ -5,6 +5,7 @@ import (
 	"github.com/aivyss/jsonx"
 	"github.com/aivyss/password-manager/command"
 	"github.com/aivyss/password-manager/options"
+	"github.com/aivyss/password-manager/pwmContext"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
 	"github.com/aivyss/password-manager/service"
@@ -18,7 +19,12 @@ import (
 
 const dataSource = "password_manager.db"
 
+var buildSecretKey string
+
 func main() {
+	// Set BuildSecretKey
+	pwmContext.NewGlobalContext(buildSecretKey)
+
 	// DB
 	db, err := sqlx.Connect("sqlite3", dataSource)
 	if err != nil {
