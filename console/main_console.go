@@ -4,12 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/aivyss/password-manager/console/command"
+	"github.com/aivyss/password-manager/options/parser"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/pwmOs"
 	"github.com/urfave/cli/v2"
 	"os"
-	"regexp"
-	"strings"
 	"sync"
 )
 
@@ -22,8 +21,6 @@ type MainConsole struct {
 }
 
 func (m *MainConsole) Run() error {
-	patternMultipleSpace, err := regexp.Compile("\\b\\s+\\b")
-
 	scanner := bufio.NewScanner(os.Stdin)
 	pwmOs.ClearTerminalBuffer()
 
@@ -36,19 +33,12 @@ func (m *MainConsole) Run() error {
 
 		// parse command line
 		scanner.Scan()
-		if err != nil {
-			return err
-		}
-		commandLine := scanner.Text()
-		commandLine = string(patternMultipleSpace.ReplaceAll([]byte(commandLine), []byte(" ")))
-		args := strings.Split(commandLine, " ")
-		inputArgs := make([]string, 0, len(args)+1)
-		inputArgs = append(inputArgs, prefixCommandName)
-		for _, arg := range args {
-			inputArgs = append(inputArgs, arg)
-		}
+		nonPrefixCommand := parser.ParseCommand(scanner.Text())
+		command := make([]string, 0, len(nonPrefixCommand)+1)
+		command = append(command, prefixCommandName)
+		command = append(command, nonPrefixCommand...)
 
-		if err := m.app.Run(inputArgs); err != nil {
+		if err := m.app.Run(command); err != nil {
 			if err == pwmErr.ExitErr {
 				return nil
 			}

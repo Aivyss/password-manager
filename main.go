@@ -58,7 +58,6 @@ func main() {
 	}
 
 	args := os.Args
-	fmt.Println(args)
 	if err := app.Run(args); err != nil {
 		fmt.Println(err.Error())
 	}
