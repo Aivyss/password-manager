@@ -9,7 +9,7 @@ type MainGetOptK struct {
 	Key string `json:"k" annotation:"@NotBlank"`
 }
 
-func NewMainGetOptK(c *cli.Context) (*MainGetOptK, error) {
+func NewMainGetOptK(c *cli.Context) (MainGetOptK, error) {
 	return parser.ParseOpts[MainGetOptK](c, []parser.OptKeyValue{
 		{
 			Key:     "k",

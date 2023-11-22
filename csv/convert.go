@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func StructsToCsv[T any](data []T) (*string, error) {
+func StructsToCsv[T any](data []T) (string, error) {
 	csvLines := CreateCsvLines(data)
 
 	// convert csv
@@ -16,11 +16,11 @@ func StructsToCsv[T any](data []T) (*string, error) {
 	writer := csv.NewWriter(&csvBuilder)
 	err := writer.WriteAll(csvLines)
 	if err != nil {
-		return nil, pwmErr.ConvertCsv
+		return "", pwmErr.ConvertCsv
 	}
 
 	result := csvBuilder.String()
-	return &result, nil
+	return result, nil
 }
 
 func CreateCsvLines[T any](data []T) [][]string {

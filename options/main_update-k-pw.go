@@ -10,17 +10,18 @@ type mainUpdateOptKOptPw struct {
 	Key string `json:"k" annotation:"@NotBlank"`
 }
 
-func (o *mainUpdateOptKOptPw) ToEntity(password string) (*MainUpdateOptKOptPw, error) {
+func (o *mainUpdateOptKOptPw) ToEntity(password string) (MainUpdateOptKOptPw, error) {
+	var zeroValue MainUpdateOptKOptPw
 	opts := MainUpdateOptKOptPw{
 		Key:      o.Key,
 		Password: password,
 	}
 
 	if err := jsonx.Validate(opts); err != nil {
-		return nil, err
+		return zeroValue, err
 	}
 
-	return &opts, nil
+	return opts, nil
 }
 
 type MainUpdateOptKOptPw struct {
@@ -28,7 +29,7 @@ type MainUpdateOptKOptPw struct {
 	Password string `json:"pw"`
 }
 
-func NewmainUpdateOptKOptPw(c *cli.Context) (*mainUpdateOptKOptPw, error) {
+func NewmainUpdateOptKOptPw(c *cli.Context) (mainUpdateOptKOptPw, error) {
 	return parser.ParseOpts[mainUpdateOptKOptPw](c, []parser.OptKeyValue{
 		{
 			Key:     "k",

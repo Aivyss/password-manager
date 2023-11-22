@@ -16,7 +16,7 @@ func (h *AppVersionCommandHandler) GetCurrentVersion(_ *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("[pwm] version: v%s\n", *version)
+	fmt.Printf("[pwm] version: v%s\n", version)
 	return nil
 }
 

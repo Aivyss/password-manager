@@ -17,7 +17,7 @@ var welcomeOnce sync.Once
 const prefixCommandName = "main"
 
 type MainConsole struct {
-	app *cli.App
+	app cli.App
 }
 
 func (m *MainConsole) Run() error {
@@ -34,11 +34,11 @@ func (m *MainConsole) Run() error {
 		// parse command line
 		scanner.Scan()
 		nonPrefixCommand := parser.ParseCommand(scanner.Text())
-		command := make([]string, 0, len(nonPrefixCommand)+1)
-		command = append(command, prefixCommandName)
-		command = append(command, nonPrefixCommand...)
+		cmd := make([]string, 0, len(nonPrefixCommand)+1)
+		cmd = append(cmd, prefixCommandName)
+		cmd = append(cmd, nonPrefixCommand...)
 
-		if err := m.app.Run(command); err != nil {
+		if err := m.app.Run(cmd); err != nil {
 			if err == pwmErr.ExitErr {
 				return nil
 			}
@@ -48,10 +48,10 @@ func (m *MainConsole) Run() error {
 	}
 }
 
-func NewMainConsole(userPk int, password string) (*MainConsole, error) {
+func NewMainConsole(userPk int, password string) (MainConsole, error) {
 	passwordCommandHandler, err := command.NewPasswordCommandHandler(userPk, password)
 	if err != nil {
-		return nil, err
+		return MainConsole{}, err
 	}
 
 	mainConsoleApp := cli.App{
@@ -117,7 +117,7 @@ func NewMainConsole(userPk int, password string) (*MainConsole, error) {
 		Description: "store your passwords safely",
 	}
 
-	return &MainConsole{
-		app: &mainConsoleApp,
+	return MainConsole{
+		app: mainConsoleApp,
 	}, nil
 }

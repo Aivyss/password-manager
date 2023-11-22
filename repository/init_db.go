@@ -44,13 +44,13 @@ func CheckAppVersion() error {
 		return err
 	}
 
-	if *versionCount > 0 {
+	if versionCount > 0 {
 		version, err := appVersionRepo.GetLatestAppVersion()
 		if err != nil {
 			return err
 		}
 
-		parseRegisteredVerStrs := strings.Split(*version, ".")
+		parseRegisteredVerStrs := strings.Split(version, ".")
 		currentAppVerStrs := strings.Split(constant.AppVersion, ".")
 
 		parseRegisteredVer := appVersionDataBind{

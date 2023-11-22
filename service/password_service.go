@@ -10,14 +10,13 @@ import (
 	"github.com/aivyss/password-manager/pwmContext"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
-	"github.com/aivyss/typex/util"
 	"golang.org/x/crypto/bcrypt"
 	"io"
 )
 
 type PasswordService interface {
 	SetPassword(key, plainPw, description string) error
-	GetPassword(key string) (*string, error)
+	GetPassword(key string) (string, error)
 	UpdatePassword(key, plainPwForPersist, plainUserPw string) error
 	GetAllPasswords() ([]entity.PasswordList, error)
 }
@@ -52,14 +51,14 @@ func (s *passwordListService) UpdatePassword(key, plainPwForPersist, plainUserPw
 		return err
 	}
 
-	return s.passwordListRepository.UpdatePasswordByUserPkAndKey(ctx, s.userPk, key, *encryptedPw)
+	return s.passwordListRepository.UpdatePasswordByUserPkAndKey(ctx, s.userPk, key, encryptedPw)
 }
 
-func (s *passwordListService) GetPassword(key string) (*string, error) {
+func (s *passwordListService) GetPassword(key string) (string, error) {
 	ctx := context.Background()
 	passwordEntity, err := s.passwordListRepository.GetPasswordByUserPkAndKey(ctx, s.userPk, key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return s.decrypt(passwordEntity.Password)
@@ -75,7 +74,7 @@ func (s *passwordListService) SetPassword(key, plainPw, description string) erro
 	// persist password
 	ctx := context.Background()
 	return s.txManager.Txx(ctx, func(ctx context.Context) error {
-		if err := s.passwordListRepository.Insert(ctx, s.userPk, key, *encrypt); err != nil {
+		if err := s.passwordListRepository.Insert(ctx, s.userPk, key, encrypt); err != nil {
 			return err
 		}
 
@@ -92,18 +91,18 @@ func (s *passwordListService) SetPassword(key, plainPw, description string) erro
 	})
 }
 
-func (s *passwordListService) decrypt(encryptedPw string) (*string, error) {
+func (s *passwordListService) decrypt(encryptedPw string) (string, error) {
 	cryptoKey := make([]byte, 0, 32)
 	cryptoKey = append(cryptoKey, s.cryptoKey...)
 	cryptoKey = append(cryptoKey, []byte(pwmContext.GetGlobalContext().BuildSecretKey)[:16]...)
 	block, err := aes.NewCipher(cryptoKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	decodedCipher, err := base64.URLEncoding.DecodeString(encryptedPw)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	iv := decodedCipher[:aes.BlockSize]
@@ -113,29 +112,29 @@ func (s *passwordListService) decrypt(encryptedPw string) (*string, error) {
 	stream.XORKeyStream(cipherBytes, cipherBytes)
 
 	password := string(cipherBytes)
-	return &password, nil
+	return password, nil
 }
 
-func (s *passwordListService) encrypt(password string) (*string, error) {
+func (s *passwordListService) encrypt(password string) (string, error) {
 	cryptoKey := make([]byte, 0, 32)
 	cryptoKey = append(cryptoKey, s.cryptoKey...)
 	cryptoKey = append(cryptoKey, []byte(pwmContext.GetGlobalContext().BuildSecretKey)[:16]...)
 	block, err := aes.NewCipher(cryptoKey)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	cipherText := make([]byte, aes.BlockSize+len(password))
 	iv := cipherText[:aes.BlockSize]
 
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	stream := cipher.NewCFBEncrypter(block, iv)
 	stream.XORKeyStream(cipherText[aes.BlockSize:], []byte(password))
 
-	return util.MustPointer(base64.URLEncoding.EncodeToString(cipherText)), nil
+	return base64.URLEncoding.EncodeToString(cipherText), nil
 }
 
 func NewPasswordService(userPk int, cryptoKey []byte) (PasswordService, error) {

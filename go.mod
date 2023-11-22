@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/aivyss/jsonx v1.0.4
-	github.com/aivyss/typex v1.0.4
+	github.com/aivyss/typex v1.0.5
 	github.com/atotto/clipboard v0.1.4
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.18

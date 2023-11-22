@@ -1,7 +1,7 @@
 github.com/aivyss/jsonx v1.0.4 h1:Pqz+byhXW2ehFV18oR8OBaBsz3y4oGGPv1bmKLiLcwM=
 github.com/aivyss/jsonx v1.0.4/go.mod h1:0r4Nxpo/Mq92wOLtOzMOmXH/QiIpb0AgVJjdFhXLZao=
-github.com/aivyss/typex v1.0.4 h1:gH6mPoXeMMUaPIEq2qfZH6QAEDjrkInVFGg3c/beegE=
-github.com/aivyss/typex v1.0.4/go.mod h1:8luE6hnCtP7B92b9tFGPZ4pfjdG6BgEvocwvM0FTkBk=
+github.com/aivyss/typex v1.0.5 h1:b4AxgVzh/AN8yDbA6DzxAfMJhbKznjT0I9O5bu9Qa0U=
+github.com/aivyss/typex v1.0.5/go.mod h1:8luE6hnCtP7B92b9tFGPZ4pfjdG6BgEvocwvM0FTkBk=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/cpuguy83/go-md2man/v2 v2.0.2 h1:p1EgwI/C7NhT0JmVkwCD2ZBK8j4aeHQX2pMHHBfMQ6w=

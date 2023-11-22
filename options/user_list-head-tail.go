@@ -10,7 +10,7 @@ type UserListOptHeadOptTail struct {
 	Tail int `json:"tail"`
 }
 
-func NewUserListOptHeadOptTail(c *cli.Context) (*UserListOptHeadOptTail, error) {
+func NewUserListOptHeadOptTail(c *cli.Context) (UserListOptHeadOptTail, error) {
 	return parser.ParseOpts[UserListOptHeadOptTail](c, []parser.OptKeyValue{
 		{
 			Key:     "head",

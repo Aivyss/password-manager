@@ -15,8 +15,8 @@ const (
 	INT
 )
 
-var optValuePattern = regexp.MustCompile("\\-[a-zA-Z\\d]*\\s*[^-]*")
-var optPattern = regexp.MustCompile("\\-[a-zA-Z\\d]*\\s*")
+var optValuePattern = regexp.MustCompile("-[a-zA-Z\\d]*\\s*[^-]*")
+var optPattern = regexp.MustCompile("-[a-zA-Z\\d]*\\s*")
 var patternMultipleSpacePattern = regexp.MustCompile("\\b\\s+\\b")
 
 type OptKeyValue struct {
@@ -24,7 +24,8 @@ type OptKeyValue struct {
 	OptType OptType
 }
 
-func ParseOpts[T any](c *cli.Context, opts []OptKeyValue) (*T, error) {
+func ParseOpts[T any](c *cli.Context, opts []OptKeyValue) (T, error) {
+	var result T
 	m := map[string]any{}
 	for _, opt := range opts {
 		switch opt.OptType {
@@ -37,15 +38,16 @@ func ParseOpts[T any](c *cli.Context, opts []OptKeyValue) (*T, error) {
 
 	j, err := jsonx.Marshal(m)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
 	unmarshal, err := jsonx.Unmarshal[T](j)
 	if err != nil {
-		return nil, pwmErr.OptParseErr
+		return result, pwmErr.OptParseErr
 	}
+	result = *unmarshal
 
-	return unmarshal, nil
+	return result, nil
 }
 
 func ParseCommand(s string) []string {

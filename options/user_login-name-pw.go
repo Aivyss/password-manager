@@ -10,17 +10,18 @@ type userLoginOptNameOptPw struct {
 	Name string `json:"name" annotation:"@NotBlank"`
 }
 
-func (o *userLoginOptNameOptPw) ToEntity(password string) (*UserLoginOptNameOptPw, error) {
+func (o *userLoginOptNameOptPw) ToEntity(password string) (UserLoginOptNameOptPw, error) {
+	var zeroValue UserLoginOptNameOptPw
 	opts := UserLoginOptNameOptPw{
 		Name:     o.Name,
 		Password: password,
 	}
 
 	if err := jsonx.Validate(opts); err != nil {
-		return nil, err
+		return zeroValue, err
 	}
 
-	return &opts, nil
+	return opts, nil
 }
 
 type UserLoginOptNameOptPw struct {
@@ -28,7 +29,7 @@ type UserLoginOptNameOptPw struct {
 	Password string `json:"pw" annotation:"@NotBlank"`
 }
 
-func NewuserLoginOptNameOptPw(c *cli.Context) (*userLoginOptNameOptPw, error) {
+func NewuserLoginOptNameOptPw(c *cli.Context) (userLoginOptNameOptPw, error) {
 	return parser.ParseOpts[userLoginOptNameOptPw](c, []parser.OptKeyValue{
 		{
 			Key:     "name",

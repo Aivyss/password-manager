@@ -11,7 +11,7 @@ import (
 
 type MasterUserService interface {
 	CreateUser(name, password string) error
-	Login(name, password string) (*entity.MasterUser, error)
+	Login(name, password string) (entity.MasterUser, error)
 	GetUsers(head, tail int) ([]entity.MasterUser, error)
 	DropUser(username string, password string) error
 }
@@ -66,18 +66,18 @@ func (s *masterUserService) GetUsers(head, tail int) ([]entity.MasterUser, error
 	return result, nil
 }
 
-func (s *masterUserService) Login(name, password string) (*entity.MasterUser, error) {
+func (s *masterUserService) Login(name, password string) (entity.MasterUser, error) {
 	ctx := context.Background()
 	user, err := s.masterUserRepository.GetUserByUserName(ctx, name)
 	if err != nil {
-		return nil, err
+		return entity.MasterUser{}, err
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password+name)); err != nil {
-		return nil, pwmErr.NoUser
+		return entity.MasterUser{}, pwmErr.NoUser
 	}
 
-	return user, nil
+	return *user, nil
 }
 
 func (s *masterUserService) CreateUser(name, password string) error {
