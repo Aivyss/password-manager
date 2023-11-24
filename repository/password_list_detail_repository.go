@@ -8,6 +8,7 @@ import (
 
 type PasswordListDetailRepository interface {
 	Insert(ctx context.Context, passwordListKey int, detail string) error
+	UpdateDescriptionByPasswordListKey(ctx context.Context, passwordListKey int, description string) error
 }
 
 func (r *passwordListDetailRepository) Insert(ctx context.Context, passwordListKey int, detail string) error {
@@ -24,6 +25,18 @@ func (r *passwordListDetailRepository) Insert(ctx context.Context, passwordListK
 type passwordListDetailRepository struct {
 	db                            *sqlx.DB
 	insertDetailByPasswordListKey *sqlx.NamedStmt
+	updateDetailByPasswordListKey *sqlx.NamedStmt
+}
+
+func (r *passwordListDetailRepository) UpdateDescriptionByPasswordListKey(ctx context.Context, passwordListKey int, description string) error {
+	if _, err := r.updateDetailByPasswordListKey.ExecContext(ctx, map[string]any{
+		"passwordListKey": passwordListKey,
+		"description":     description,
+	}); err != nil {
+		return pwmErr.FailUpdatePwDescription
+	}
+
+	return nil
 }
 
 func NewPasswordListDetailRepository(db *sqlx.DB) (PasswordListDetailRepository, error) {
@@ -31,8 +44,14 @@ func NewPasswordListDetailRepository(db *sqlx.DB) (PasswordListDetailRepository,
 	if err != nil {
 		return nil, err
 	}
+	updateDetailByPasswordListKey, err := db.PrepareNamed(UpdateDetailByPasswordListKey)
+	if err != nil {
+		return nil, err
+	}
+
 	return &passwordListDetailRepository{
 		db:                            db,
 		insertDetailByPasswordListKey: insertDetailByPasswordListKey,
+		updateDetailByPasswordListKey: updateDetailByPasswordListKey,
 	}, nil
 }

@@ -33,7 +33,12 @@ func (m *MainConsole) Run() error {
 
 		// parse command line
 		scanner.Scan()
-		nonPrefixCommand := parser.ParseCommand(scanner.Text())
+		text := scanner.Text()
+		if text == "" {
+			continue
+		}
+
+		nonPrefixCommand := parser.ParseCommand(text)
 		cmd := make([]string, 0, len(nonPrefixCommand)+1)
 		cmd = append(cmd, prefixCommandName)
 		cmd = append(cmd, nonPrefixCommand...)
@@ -105,6 +110,27 @@ func NewMainConsole(userPk int, password string) (MainConsole, error) {
 				Action: func(context *cli.Context) error {
 					pwmOs.ClearTerminalBuffer()
 					return nil
+				},
+			},
+			{
+				Name:    "description",
+				Aliases: []string{"d"},
+				Subcommands: []*cli.Command{
+					{
+						Name:    "update",
+						Aliases: []string{"u"},
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:    "key",
+								Aliases: []string{"k"},
+							},
+							&cli.StringFlag{
+								Name:    "value",
+								Aliases: []string{"v"},
+							},
+						},
+						Action: passwordCommandHandler.UpdateDescription,
+					},
 				},
 			},
 			{

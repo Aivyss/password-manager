@@ -10,3 +10,8 @@ type PasswordList struct {
 	CreatedAt time.Time `db:"CREATED_AT"`
 	UpdatedAt time.Time `db:"UPDATED_AT"`
 }
+
+type PasswordListWithDescription struct {
+	PasswordList
+	Description string `db:"DESCRIPTION"`
+}

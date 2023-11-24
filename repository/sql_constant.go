@@ -114,14 +114,17 @@ const (
 	`
 	GetAllPasswords = `
 		SELECT
-			ID,
-			USER_PK,
-			KEY_VALUE,
-			PASSWORD,
-			CREATED_AT,
-			UPDATED_AT
+			PL.ID,
+			PL.USER_PK,
+			PL.KEY_VALUE,
+			PL.PASSWORD,
+			PL.CREATED_AT,
+			PL.UPDATED_AT,
+			PL_D.DESCRIPTION
 		FROM
-			PASSWORD_LIST
+			PASSWORD_LIST PL
+		JOIN PASSWORD_LIST_DETAIL PL_D ON 1=1
+			AND PL_D.PASSWORD_LIST_KEY = PL.ID
 		WHERE 1=1
 			AND USER_PK = :userPk
 	`
@@ -148,5 +151,13 @@ const (
 	`
 	InsertDetailByPasswordListKey = `
 		INSERT INTO PASSWORD_LIST_DETAIL (PASSWORD_LIST_KEY, DESCRIPTION) VALUES (:passwordListKey, :description)
+	`
+	UpdateDetailByPasswordListKey = `
+		UPDATE
+			PASSWORD_LIST_DETAIL
+		SET
+			DESCRIPTION = :description
+		WHERE 1=1
+			AND PASSWORD_LIST_KEY = :passwordListKey
 	`
 )

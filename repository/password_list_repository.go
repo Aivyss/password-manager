@@ -17,7 +17,7 @@ const (
 type PasswordListRepository interface {
 	Insert(ctx context.Context, userPk int, key string, password string) error
 	GetPasswordByUserPkAndKey(ctx context.Context, userPk int, key string) (entity.PasswordList, error)
-	GetAllPasswords(ctx context.Context, userPk int) ([]entity.PasswordList, error)
+	GetAllPasswords(ctx context.Context, userPk int) ([]entity.PasswordListWithDescription, error)
 	UpdatePasswordByUserPkAndKey(ctx context.Context, userPk int, key string, password string) error
 }
 
@@ -53,8 +53,8 @@ func (p *passwordListRepository) GetPasswordByUserPkAndKey(ctx context.Context, 
 	return result, nil
 }
 
-func (p *passwordListRepository) GetAllPasswords(ctx context.Context, userPk int) ([]entity.PasswordList, error) {
-	var results []entity.PasswordList
+func (p *passwordListRepository) GetAllPasswords(ctx context.Context, userPk int) ([]entity.PasswordListWithDescription, error) {
+	var results []entity.PasswordListWithDescription
 	if err := p.queryMap[GetAllPasswordsKey].SelectContext(ctx, &results, map[string]any{
 		"userPk": userPk,
 	}); err != nil {

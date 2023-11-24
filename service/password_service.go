@@ -18,7 +18,8 @@ type PasswordService interface {
 	SetPassword(key, plainPw, description string) error
 	GetPassword(key string) (string, error)
 	UpdatePassword(key, plainPwForPersist, plainUserPw string) error
-	GetAllPasswords() ([]entity.PasswordList, error)
+	GetAllPasswords() ([]entity.PasswordListWithDescription, error)
+	UpdateDescription(key, userPlainPassword, description string) error
 }
 
 type passwordListService struct {
@@ -30,7 +31,27 @@ type passwordListService struct {
 	cryptoKey                    []byte
 }
 
-func (s *passwordListService) GetAllPasswords() ([]entity.PasswordList, error) {
+func (s *passwordListService) UpdateDescription(key, userPlainPassword, description string) error {
+	ctx := context.Background()
+
+	user, err := s.masterUserRepository.GetUserById(ctx, s.userPk)
+	if err != nil {
+		return pwmErr.NoUser
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userPlainPassword+user.UserName)); err != nil {
+		return pwmErr.WrongPw
+	}
+
+	passwordEntity, err := s.passwordListRepository.GetPasswordByUserPkAndKey(ctx, s.userPk, key)
+	if err != nil {
+		return err
+	}
+
+	return s.passwordListDetailRepository.UpdateDescriptionByPasswordListKey(ctx, passwordEntity.Id, description)
+}
+
+func (s *passwordListService) GetAllPasswords() ([]entity.PasswordListWithDescription, error) {
 	ctx := context.Background()
 	return s.passwordListRepository.GetAllPasswords(ctx, s.userPk)
 }

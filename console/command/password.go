@@ -19,7 +19,7 @@ type PasswordCommandHandler struct {
 }
 
 func (h *PasswordCommandHandler) SetPassword(c *cli.Context) error {
-	fmt.Print("[pwm] enter password: ")
+	fmt.Print("[pwm][main console] enter password: ")
 	password, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()
 
@@ -90,17 +90,19 @@ func (h *PasswordCommandHandler) GetAllKeys(_ *cli.Context) error {
 	}
 
 	type passwordListCsvBindObject struct {
-		Key       string    `csv:"Key"`
-		CreatedAt time.Time `csv:"Created Date"`
-		UpdatedAt time.Time `csv:"Last Updated Date"`
+		Key         string    `csv:"Key"`
+		Description string    `csv:"Description"`
+		CreatedAt   time.Time `csv:"Created Date"`
+		UpdatedAt   time.Time `csv:"Last Updated Date"`
 	}
 
 	objects := make([]passwordListCsvBindObject, 0, len(passwords))
 	for _, password := range passwords {
 		objects = append(objects, passwordListCsvBindObject{
-			Key:       password.Key,
-			CreatedAt: password.CreatedAt,
-			UpdatedAt: password.UpdatedAt,
+			Key:         password.Key,
+			CreatedAt:   password.CreatedAt,
+			UpdatedAt:   password.UpdatedAt,
+			Description: password.Description,
 		})
 	}
 
@@ -113,6 +115,24 @@ func (h *PasswordCommandHandler) GetAllKeys(_ *cli.Context) error {
 	fmt.Println("[pwm][main console] there is no record")
 
 	return nil
+}
+
+func (h *PasswordCommandHandler) UpdateDescription(c *cli.Context) error {
+	object, err := options.NewmainDescriptionUpdateOptKeyOptValue(c)
+	if err != nil {
+		return err
+	}
+
+	fmt.Print("[pwm][main console] please enter master user password again: ")
+	password, _ := terminal.ReadPassword(int(os.Stdin.Fd()))
+	fmt.Println()
+
+	opts, err := object.ToEntity(string(password))
+	if err != nil {
+		return err
+	}
+
+	return h.passwordService.UpdateDescription(opts.Key, opts.Password, opts.Value)
 }
 
 func NewPasswordCommandHandler(userPk int, password string) (*PasswordCommandHandler, error) {
