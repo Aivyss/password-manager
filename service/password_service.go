@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"github.com/aivyss/bean"
 	"github.com/aivyss/password-manager/entity"
 	"github.com/aivyss/password-manager/pwmContext"
 	"github.com/aivyss/password-manager/pwmErr"
@@ -159,16 +160,28 @@ func (s *passwordListService) encrypt(password string) (string, error) {
 }
 
 func NewPasswordService(userPk int, cryptoKey []byte) (PasswordService, error) {
-	repositoryFactory, err := repository.GetRepositoryFactory()
+	masterUserRepository, err := bean.GetBean[repository.MasterUserRepository]()
+	if err != nil {
+		return nil, err
+	}
+	passwordListRepository, err := bean.GetBean[repository.PasswordListRepository]()
+	if err != nil {
+		return nil, err
+	}
+	passwordListDetailRepository, err := bean.GetBean[repository.PasswordListDetailRepository]()
+	if err != nil {
+		return nil, err
+	}
+	txManager, err := bean.GetBean[repository.TxManager]()
 	if err != nil {
 		return nil, err
 	}
 
 	return &passwordListService{
-		masterUserRepository:         repositoryFactory.MasterUserRepository,
-		passwordListRepository:       repositoryFactory.PasswordListRepository,
-		passwordListDetailRepository: repositoryFactory.PasswordListDetailRepository,
-		txManager:                    repositoryFactory.TxManager,
+		masterUserRepository:         masterUserRepository,
+		passwordListRepository:       passwordListRepository,
+		passwordListDetailRepository: passwordListDetailRepository,
+		txManager:                    txManager,
 		userPk:                       userPk,
 		cryptoKey:                    cryptoKey,
 	}, nil

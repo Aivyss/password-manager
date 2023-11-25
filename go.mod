@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/aivyss/jsonx v1.0.4
-	github.com/aivyss/typex v1.0.5
+	github.com/aivyss/typex v1.0.8
 	github.com/atotto/clipboard v0.1.4
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.18
@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/aivyss/bean v1.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect

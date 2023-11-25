@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/aivyss/bean"
 	"github.com/aivyss/jsonx"
 	"github.com/aivyss/password-manager/command"
 	"github.com/aivyss/password-manager/options"
 	"github.com/aivyss/password-manager/pwmContext"
-	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/repository"
 	"github.com/aivyss/password-manager/service"
 	"github.com/aivyss/password-manager/validator"
@@ -34,9 +34,19 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	factory, err := repository.NewRepositoryFactory(db)
+	beanBuff := bean.GetBeanBuffer()
+	beanBuff.RegisterBean(func() *sqlx.DB { return db })
+	beanBuff.RegisterBean(repository.NewAppVersionRepository)
+	beanBuff.RegisterBean(repository.NewMasterUserRepository)
+	beanBuff.RegisterBean(repository.NewPasswordListRepository)
+	beanBuff.RegisterBean(repository.NewPasswordListDetailRepository)
+	beanBuff.RegisterBean(repository.NewTxManager)
+	beanBuff.RegisterBean(service.NewMasterUserService)
+	beanBuff.RegisterBean(command.NewMasterUserCommandHandler)
+	beanBuff.RegisterBean(command.NewAppVersionCommandHandler)
+	err = beanBuff.Buffer()
 	if err != nil {
-		fmt.Println(pwmErr.FailToCreateRepository.Error())
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -50,8 +60,16 @@ func main() {
 	registerValidations()
 
 	// Create Handlers
-	masterUserCommandHandler := command.NewMasterUserCommandHandler(service.NewMasterUserService(factory.MasterUserRepository))
-	appVersionCommandHandler := command.NewAppVersionCommandHandler(factory.AppVersionRepository)
+	masterUserCommandHandler, err := bean.GetBean[*command.MasterUserCommandHandler]()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	appVersionCommandHandler, err := bean.GetBean[*command.AppVersionCommandHandler]()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
 
 	// Command Mapping
 	app := cli.App{

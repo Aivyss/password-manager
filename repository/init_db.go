@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/aivyss/bean"
 	"github.com/aivyss/password-manager/constant"
 	"github.com/aivyss/password-manager/pwmErr"
 	"github.com/aivyss/password-manager/util"
@@ -33,11 +34,10 @@ func InitDB(db *sqlx.DB) error {
 }
 
 func CheckAppVersion() error {
-	factory, err := GetRepositoryFactory()
+	appVersionRepo, err := bean.GetBean[AppVersionRepository]()
 	if err != nil {
 		return err
 	}
-	appVersionRepo := factory.AppVersionRepository
 
 	versionCount, err := appVersionRepo.CountVersions()
 	if err != nil {
