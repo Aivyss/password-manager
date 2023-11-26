@@ -2,10 +2,16 @@ github.com/aivyss/bean v0.0.0-20231125022026-9d876801e6ab h1:OzibUPlzR45PempbM1w
 github.com/aivyss/bean v0.0.0-20231125022026-9d876801e6ab/go.mod h1:VlpjyKW1q6/eodrv05Mu9ISIlHeBQIB+A5NAI+a5BJM=
 github.com/aivyss/bean v1.0.0 h1:PkUWhSw7UyzoIgXzPzeKDKPqp+qdhTfvLAWzhdCay/o=
 github.com/aivyss/bean v1.0.0/go.mod h1:VlpjyKW1q6/eodrv05Mu9ISIlHeBQIB+A5NAI+a5BJM=
+github.com/aivyss/bean v1.0.1 h1:ES2QhRfaCzMBcuY73Iufso7U9aWa1PnXu2kVYejp7Gc=
+github.com/aivyss/bean v1.0.1/go.mod h1:Fb59DjVMCI2qwngRLpb/1KufYkFXlhCzzxTaU1ALSVk=
 github.com/aivyss/jsonx v1.0.4 h1:Pqz+byhXW2ehFV18oR8OBaBsz3y4oGGPv1bmKLiLcwM=
 github.com/aivyss/jsonx v1.0.4/go.mod h1:0r4Nxpo/Mq92wOLtOzMOmXH/QiIpb0AgVJjdFhXLZao=
+github.com/aivyss/jsonx v1.0.5 h1:DdzjPNxvZNrPo2dG8v1R9NFWaUWRcU4/el5Mcnu1GJI=
+github.com/aivyss/jsonx v1.0.5/go.mod h1:kcSrJslFRJSzpDh9ZdQnNq6WX0aieI8fOl9sQFegv6U=
 github.com/aivyss/typex v1.0.8 h1:Hvo6j1jkMc/GoTpXuo1jHm4+eM/Al5a3QOBTSwnqshE=
 github.com/aivyss/typex v1.0.8/go.mod h1:8luE6hnCtP7B92b9tFGPZ4pfjdG6BgEvocwvM0FTkBk=
+github.com/aivyss/typex v1.1.0 h1:vlUS5tR0QzMhVIV9Zo539Ef8cJ2MFDH2YuWch29eNPM=
+github.com/aivyss/typex v1.1.0/go.mod h1:8luE6hnCtP7B92b9tFGPZ4pfjdG6BgEvocwvM0FTkBk=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/cpuguy83/go-md2man/v2 v2.0.2 h1:p1EgwI/C7NhT0JmVkwCD2ZBK8j4aeHQX2pMHHBfMQ6w=
